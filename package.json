@@ -12,6 +12,17 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "notebooks": [
+      {
+          "type": "my-notebook",
+          "displayName": "My Notebook",
+          "selector": [
+              {
+                  "filenamePattern": "*.notebook"
+              }
+          ]
+      }
+    ],
     "commands": [
       {
         "command": "notebookgenerator.helloWorld",
@@ -20,6 +31,10 @@
       {
         "command": "notebookgenerator.createNotebook",
         "title": "Notebook Generator Create Notebook"
+      },
+      {
+        "command": "notebookgenerator.addCell",
+        "title": "Notebook Generator Add Cell"
       }
     ]
   },
@@ -46,6 +61,7 @@
   },
   "dependencies": {
     "@jupyterlab/nbformat": "^4.0.3",
-    "axios": "^1.4.0"
+    "axios": "^1.4.0",
+    "openai": "^3.3.0"
   }
 }
