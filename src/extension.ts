@@ -4,22 +4,20 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Configuration, OpenAIApi } from 'openai';
 
-const openAIEndpoint = 'https://api.openai.com/v1/engines/davinci/completions';
+const OPEN_AI_API_KEY = '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';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "notebookgenerator" is now active!');
 
-	// let disposable = vscode.commands.registerCommand('notebookgenerator.createNotebook', () => {
-	// 	vscode.window.showInformationMessage('Hello World from NotebookGenerator!');
-	// 	//gptExample();
-	// 	createNotebook();
-	// });
 	
+	context.subscriptions.push(vscode.commands.registerCommand('notebookgenerator.createNotebook', createNotebook));
+
+
 	const workspaceFolders = vscode.workspace.workspaceFolders;
-			  if (!workspaceFolders) {
-				vscode.window.showErrorMessage('No directory is open');
-				return;
-			  }
+	if (!workspaceFolders) {
+	  vscode.window.showErrorMessage('No directory is open');
+	  return;
+	}
 	const dir = workspaceFolders[0].uri.fsPath
 	const filePath = path.join(dir, `new.ipynb`)
 	const notebookFilePath = filePath;
@@ -34,58 +32,67 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(disposable);
-	//context.subscriptions.push(vscode.commands.registerCommand('notebookgenerator.createNotebook', createNotebook));
 }
 
-function addCellToNotebook(filePath: string, content: string): void {
+
+
+async function addCellToNotebook(filePath: string, content: string){
 	fs.readFile(filePath, 'utf-8', (err, data) => {
-	  if (err) {
-		console.log(err)
-		vscode.window.showErrorMessage('Error reading notebook file.');
-		return;
-	  }
-  
-	  try {
-		const notebook = JSON.parse(data);
-		notebook.cells.push({
-		  cell_type: 'code',
-		  execution_count: null,
-		  metadata: {},
-		  outputs: [],
-		  source: content
-		});
-  
-		fs.writeFile(filePath, JSON.stringify(notebook, null, 2), 'utf-8', writeErr => {
-		  if (writeErr) {
-			vscode.window.showErrorMessage('Error writing notebook file.');
-			return;
-		  }
-		  vscode.window.showInformationMessage('Cell added successfully.');
-		});
-	  } catch (parseErr) {
-		vscode.window.showErrorMessage('Error parsing notebook JSON.');
-	  }
-	});
-  }
+		if (err) {
+		  console.log(err)
+		  vscode.window.showErrorMessage('Error reading notebook file.');
+		  return;
+		}
+	
+		try {
+		  const notebook = JSON.parse(data);
+		  notebook.cells.push({
+			cell_type: 'code',
+			execution_count: null,
+			metadata: {},
+			outputs: [],
+			source: callGPT(content)
+		  });
+	
+		  fs.writeFile(filePath, JSON.stringify(notebook, null, 2), 'utf-8', writeErr => {
+			if (writeErr) {
+			  vscode.window.showErrorMessage('Error writing notebook file.');
+			  return;
+			}
+			vscode.window.showInformationMessage('Cell added successfully.');
+		  });
+		} catch (parseErr) {
+		  vscode.window.showErrorMessage('Error parsing notebook JSON.');
+		}
+	  });
+}
 
 
 
 
-async function gptExample(){
+// this function is complete
+async function callGPT(prompt: string){
 	const configuration = new Configuration({
-	apiKey: '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',
+		apiKey: OPEN_AI_API_KEY,
 	});
 	const openai = new OpenAIApi(configuration);
 
 	const chatCompletion = await openai.createChatCompletion({
-	model: "gpt-3.5-turbo",
-	messages: [{role: "user", content: "Hello world"}],
+		model: "gpt-3.5-turbo",
+		messages: [{role: "user", content: prompt}],
 	});
-	console.log(chatCompletion.data.choices[0].message);
+	console.log(chatCompletion.data.choices[0].message?.content);
+	
+	return chatCompletion.data.choices[0].message?.content
+
 }
 
+
+// this function is complete
 async function createNotebook(){
 	const workspaceFolders = vscode.workspace.workspaceFolders;
+	console.log(workspaceFolders)
+
 	if (!workspaceFolders) {
 		vscode.window.showErrorMessage('No directory is open');
 		return;
