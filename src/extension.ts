@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Configuration, OpenAIApi } from 'openai';
 
-const OPEN_AI_API_KEY = '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';
+const OPEN_AI_API_KEY = ;
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "notebookgenerator" is now active!');
