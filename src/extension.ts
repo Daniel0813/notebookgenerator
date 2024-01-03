@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const disposable = vscode.commands.registerCommand('notebookgenerator.addCell', () => {
 		vscode.window.showInputBox({ prompt: 'Enter cell content:' }).then(content => {
 			if (content !== undefined) {
-			  // Replace with the path to your existing Jupyter notebook file
+			  // this replaces with the path to your existing Jupyter notebook file
 			  addCellToNotebook(notebookFilePath, content);
 			}
 		  });
